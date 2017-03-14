@@ -1,0 +1,247 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>首页</title>
+    <link rel="stylesheet" type="text/css" href="./css/aui/aui.2.0.css"/>
+    <script type="text/javascript" src="./script/vue.js"></script>
+    <script type="text/javascript" src="./script/common.js"></script>
+    <script type="text/javascript" src="./script/api.js"></script>
+    <style>
+        #header li {  display: none;  }
+        #header .active {  display: block;  }
+    </style>
+</head>
+<body>
+<header class="aui-bar aui-bar-nav" id="header">
+    <ul>
+        <li class="active" data-name="index">
+            <div class="aui-title">首页</div>
+        </li>
+        <li data-name="goods">
+            <div class="aui-title">分类</div>
+        </li>
+        <li data-name="cart">
+            <div class="aui-title">购物车</div>
+        </li>
+        <li data-name="order">
+            <div class="aui-title">待付款</div>
+            <a class="aui-btn aui-pull-right" tapmode onclick="showPopup()">
+                筛选
+            </a>
+        </li>
+        <li data-name="member">
+            <div class="aui-title">用户中心</div>
+        </li>
+    </ul>
+
+</header>
+<footer class="aui-bar aui-bar-tab" id="footer">
+    <div class="aui-bar-tab-item aui-active" onclick="randomSwitchBtn( this );" tapmode>
+        <i class="aui-iconfont aui-icon-home"></i>
+        <div class="aui-bar-tab-label">首页</div>
+    </div>
+    <div class="aui-bar-tab-item" onclick="randomSwitchBtn( this );" tapmode>
+        <i class="aui-iconfont aui-icon-image"></i>
+        <div class="aui-bar-tab-label">分类</div>
+    </div>
+    <div class="aui-bar-tab-item" id="show_goods_cart" onclick="randomSwitchBtn( this );" tapmode>
+        <div class="aui-badge">{{ cart_number }}</div>
+        <i class="aui-iconfont aui-icon-cart"></i>
+        <div class="aui-bar-tab-label">购物车</div>
+    </div>
+    <div class="aui-bar-tab-item" onclick="randomSwitchBtn( this );" tapmode>
+        <i class="aui-iconfont aui-icon-menu"></i>
+        <div class="aui-bar-tab-label">订单</div>
+    </div>
+    <div class="aui-bar-tab-item" onclick="randomSwitchBtn( this );" tapmode>
+        <i class="aui-iconfont aui-icon-my"></i>
+        <div class="aui-bar-tab-label">我的</div>
+    </div>
+</footer>
+
+</body>
+</html>
+<script type="text/javascript">
+    var vm = new Vue({
+        el: 'body',
+        data: {
+            cart_number: 0,
+        }
+    });
+    apiready = function () {
+        //保存全局头部高度和底部高度
+        $api.setStorage("headerheight",$api.dom("header").offsetHeight);
+        $api.setStorage("footerheight",$api.dom("footer").offsetHeight);
+
+        //全局添加监听事件，跳转购物车操作
+        api.addEventListener({
+            name: 'show_goods_cart'
+        }, function(ret, err) {
+            randomSwitchBtn($api.dom('#footer #show_goods_cart'));
+        });
+        update_cart_number();//更新购物车数量
+        //监听，登录，注册，修改地址操作
+        api.addEventListener({
+            name: 'update_cart_number'
+        }, function(ret, err) {
+            if(ret.value.status == 1){
+                update_cart_number();
+            }
+        });
+        funIniGroup();
+    };
+    function funIniGroup() {
+
+        var eHeaderLis = $api.domAll('header li'),
+                frames = [];
+        for (var i = 0, len = eHeaderLis.length; i < len; i++) {
+            var name = $api.attr(eHeaderLis[i], 'data-name');
+            if(name == 'index' || name=='goods'){
+
+                //首页展示特殊处理
+                frames.push({
+                    name: 'frame' + name,
+                    url: './html/' + name + '/index.html',
+                    bgColor: '#F3F3F3',
+                    bounces: false
+                })
+            }else{
+                frames.push({
+                    name: 'frame' + name,
+                    url: './html/' + name + '/index.html',
+                    bgColor: '#F3F3F3',
+                    bounces: true
+                })
+            }
+
+        }
+
+        api.openFrameGroup({
+            name: 'group',
+            scrollEnabled: false,
+            rect: {
+                x: 0,
+                y: 0,//首页设置子窗口置顶
+                w: api.winWidth,
+                h: api.winHeight - $api.dom('header').offsetHeight - $api.dom('footer').offsetHeight
+            },
+            bounces: false,
+            index: 0,
+            frames: frames
+        }, function (ret, err) {
+
+        });
+    }
+    // 随意切换按钮
+    function randomSwitchBtn(tag) {
+        if (tag == $api.dom('#footer .aui-bar-tab-item.aui-active'))return;
+        var eFootLis = $api.domAll('#footer .aui-bar-tab-item'),
+                eHeaderLis = $api.domAll('header li'),
+                mty_index = 0,
+                index = 0;
+
+        for (var i = 0, len = eFootLis.length; i < len; i++) {
+            if (tag == eFootLis[i]) {
+                mty_index = i;
+            }
+        }
+        if(mty_index > 1){
+            if(!is_login()){
+                api.openWin({
+                    name: 'login',
+                    url: 'widget://html/member/login.html'//登录
+                });
+                return false;//登录查看购物车和我的
+            }
+        }
+        for (var i = 0, len = eFootLis.length; i < len; i++) {
+            if (tag == eFootLis[i]) {
+                index = i;
+            } else {
+                $api.removeCls(eFootLis[i], 'aui-active');
+                $api.removeCls(eHeaderLis[i], 'active');
+            }
+        }
+        $api.addCls(eFootLis[index], 'aui-active');
+        $api.addCls(eHeaderLis[index], 'active');
+        var turnupHeight = null;
+        var isRelad = null;
+        if(index == 0){
+            isRelad = false;
+            api.setFrameGroupAttr({
+                name: 'group2',
+                hidden: false
+            });
+            api.setFrameGroupAttr({
+                name: 'group',
+                rect: {
+                    x: 0,
+                    y: 0,//首页设置子窗口置顶
+                    w: api.winWidth,
+                    h: api.winHeight - $api.dom('header').offsetHeight - $api.dom('footer').offsetHeight
+                },
+            });
+        }else{
+            isRelad = true;//设置刷新当前窗口
+            api.setFrameGroupAttr({
+                name: 'group2',
+                hidden: true
+            });
+            turnupHeight = $api.dom('header').offsetHeight;
+            api.setFrameGroupAttr({
+                name: 'group',
+                rect: {
+                    x: 0,
+                    y: turnupHeight,//打开子窗口y轴向下偏移多少
+                    w: api.winWidth,
+                    h: api.winHeight - $api.dom('header').offsetHeight - $api.dom('footer').offsetHeight
+                },
+            });
+
+        }
+        console.log(index);
+        api.setFrameGroupIndex({
+            name: 'group',
+            index: index,
+            reload: isRelad
+        });
+    }
+    function showPopup(){
+        api.execScript({
+            frameName: 'frameorder',
+            script: 'showPopup();'
+        });
+    };
+    //全局更新购物车数量显示
+    function update_cart_number() {
+        var minfo = Array();
+        var minfo = $api.getStorage('minfo');
+        if(!minfo){
+            var token = '';
+        }else{
+            var token = minfo.token;
+        }
+        api.ajax({
+            url: update_cart_numberUrl,
+            method: 'post',
+            timeout: 30,
+            dataType: 'json',
+            returnAll: false,
+            data: {
+                values: {
+                    token: token,
+                    deviceid: api.deviceId,
+                }
+            }
+        }, function (ret, err) {
+            if (ret) {
+                vm.cart_number = ret.data.cart_number;
+            } else {
+                api.alert(JSON.stringify(err));
+            }
+        });
+    }
+</script>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <link rel="stylesheet" type="text/css" href="../../css/aui/aui.2.0.css"/>
+    <script type="text/javascript" src="../../script/vue.js"></script>
+    <script type="text/javascript" src="../../script/common.js"></script>
+    <script type="text/javascript" src="../../script/api.js"></script>
+    <script type="text/javascript" src="../../script/mui/mui.min.js"></script>
+    <style>
+        .aui-list .aui-list-item {
+            padding-left: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+<header class="aui-bar aui-bar-nav aui-bar-light">
+    <a class="aui-pull-left" onclick="closeme(this)">
+        <i class="aui-iconfont aui-icon-left"></i>
+    </a>
+    <div class="aui-title">收藏</div>
+</header>
+</body>
+</html>
+<script>
+    apiready = function () {
+        api.openFrame({
+            name: 'collect_frm',
+            url: 'widget://html/member/collect_frm.html',
+            rect: {
+                x: 0,
+                y: $api.dom("header").offsetHeight,
+                w: api.winWidth,
+                h: api.winHeight - $api.dom('header').offsetHeight
+            },
+            bounces: true
+        });
+    }
+</script>

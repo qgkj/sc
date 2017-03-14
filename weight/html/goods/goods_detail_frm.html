@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <link rel="stylesheet" type="text/css" href="../../css/aui/aui.2.0.css"/>
+    <script type="text/javascript" src="../../script/vue.js"></script>
+    <script type="text/javascript" src="../../script/common.js"></script>
+    <script type="text/javascript" src="../../script/api.js"></script>
+    <style>
+        .goods-count{
+            height: 2.0rem;line-height: 2.0rem;background-color: #ffffff;
+        }
+    </style>
+</head>
+
+<body>
+
+
+<section class="aui-content">
+    <div class="aui-card-list" style="background-color: #f5f5f5;margin-bottom: 0.25rem;">
+        <div class="aui-card-list-content">
+            <img v-bind:src="cover1_url" onclick="openwin_goods_gallery( {{ id }})"/>
+        </div>
+        <div class="aui-card-list-footer" style="background-color: #ffffff;margin-top: 0.2rem;">
+            <div class="aui-row">
+                <div class="aui-col-xs-12">
+                    {{ name }}
+                </div>
+                <div class="aui-col-xs-12 aui-text-danger">
+                    ￥<span class="aui-font-size-20">{{ price }}</span>
+                </div>
+                <div class="aui-col-xs-12">
+                    <span class="aui-font-size-12">
+                        {{ specification }}
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="aui-row" style="margin-top: 0.2rem;">
+            <div class="aui-col-xs-12 ">
+                <div class="aui-col-xs-12 goods-count">
+                    <p class="aui-font-size-12 aui-padded-l-10">订购数量:&nbsp {{ goods_num }}</p>
+                </div>
+            </div>
+            <div class="aui-col-xs-12 aui-border">
+                <div class="aui-col-xs-3 aui-text-center goods-count aui-border-l">
+                    <i class="aui-iconfont aui-icon-minus" v-on:click="cutdowncart()"></i>
+                </div>
+                <div class="aui-col-xs-6 goods-count aui-border">
+                    <input type="number" name="num" v-model="goods_num" class="aui-text-center">
+                </div>
+                <div class="aui-col-xs-3 aui-text-center goods-count aui-border-r">
+                    <i class="aui-iconfont aui-icon-plus aui-text-danger" v-on:click="addcart()"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="aui-content" style="background-color: #ffffff;padding: 1rem;">
+    <p class="aui-font-size-12">产品介绍：<br>
+    </p>
+    <p class="aui-font-size-12">{{{ content }}}</p>
+</section>
+</body>
+</html>
+<script>
+    var vm = new Vue({
+        el: 'body',
+        data: {
+            id: 0,//商品id
+            name: '',
+            specification: '',
+            unit: '',
+            price: 0.00,
+            storage_num: 0,
+            content: '',
+            cover1_url: '',
+            piclist: '',
+            goods_num : 0
+        },
+        methods: {
+            cutdowncart: function () {
+                cutdown_to_cart(vm.id);//购物车减1/n
+                vm.goods_num = parseInt(vm.goods_num) - 1;
+            },
+            addcart: function () {
+                add_to_cart(vm.id);//购物车加1/n
+                vm.goods_num = parseInt(vm.goods_num) + 1;
+            }
+        }
+    });
+    apiready = function () {
+        readerList();
+        api.setRefreshHeaderInfo({
+            visible: true,
+            loadingImg: 'widget://image/refresh.png',
+            bgColor: '#f5f5f5',
+            textColor: '#fff',
+            textDown: '下拉刷新...',
+            textUp: '松开刷新...',
+            showTime: true
+        }, function (ret, err) {
+            readerList();
+            api.refreshHeaderLoadDone();
+        });
+        api.addEventListener({
+            name: 'add_to_cart'
+        }, function(ret, err) {
+            add_to_cart(pageParam.id);
+        });
+
+        //全局刷新页面广播
+        api.addEventListener({
+            name: 'pagereload'
+        }, function(ret, err) {
+            if(ret.stattus == 1){
+                readerList();
+            }
+        });
+    };
+
+    function readerList() {
+        var minfo = Array();
+        var minfo = $api.getStorage('minfo');
+        if(!minfo){
+            var token = '';
+        }else{
+            var token = minfo.token;
+        }
+        var pageParam = api.pageParam;
+        vm.id = pageParam.id;
+        api.ajax({
+            url: goods_detailUrl,
+            method: 'post',
+            timeout: 30,
+            dataType: 'json',
+            returnAll: false,
+            data: {
+                values: {
+                    id: pageParam.id,
+                    token: token,
+                    deviceid: api.deviceId,
+                }
+            }
+        }, function (ret, err) {
+            if (ret) {
+                var goods_info = ret.data;
+
+                vm.cover1_url = goods_info.cover1_url;
+                vm.name = goods_info.name;
+                vm.specification = goods_info.specification;
+                vm.unit = goods_info.unit;
+                vm.price = goods_info.price;
+                vm.storage_num = goods_info.storage_num;
+                vm.content = goods_info.content;
+                vm.piclist = goods_info.piclist;
+                vm.goods_num = goods_info.goods_num;
+
+            } else {
+                api.alert(JSON.stringify(err));
+            }
+        });
+    }
+</script>

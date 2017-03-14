@@ -1,0 +1,162 @@
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <link rel="stylesheet" type="text/css" href="../../css/aui/aui.2.0.css"/>
+    <script type="text/javascript" src="../../script/vue.js"></script>
+    <script type="text/javascript" src="../../script/api.js"></script>
+    <script type="text/javascript" src="../../script/common.js"></script>
+    <style>
+        .mty_iconfont{
+            padding-top: 0.2rem;
+        }
+    </style>
+</head>
+<body >
+<section class="aui-content" style="border: hidden;">
+    <ul class="aui-list aui-media-list" >
+        <li class="aui-list-item" style="padding: 0.2rem;">
+            <div class="aui-list-item-inner" style="padding: 0rem;">
+                <!--goods_list 开始-->
+                <div class="aui-row" id="randercontent">
+                    <div class="aui-col-xs-6" style="padding: 0.2rem;background-color: #FFFFFF;" v-for="item in list">
+                        <div style="background-color: #FFFFFF;">
+                            <img v-bind:src="item.url" onclick="openwin_goods_detail( {{ item.id }} )">
+                            <div class="aui-col-xs-12 aui-font-size-12 aui-padded-t-5 aui-padded-l-5">{{ item.name }}</div>
+                            <div class="aui-col-xs-12">
+                                <div class="aui-pull-left aui-list-item-text aui-font-size-12 aui-padded-b-5 aui-padded-l-5">
+                                    <span class="aui-font-size-12">{{ item.unit_name }}</span>
+                                    <span class="aui-font-size-12">( {{ item.specification }} )</span>
+                                </div>
+                                <div class="aui-pull-right aui-font-size-12 aui-text-danger aui-padded-r-5">￥{{ item.price }}</div>
+                            </div>
+                            <div class="aui-col-xs-12 aui-border">
+                                <div class="aui-col-xs-4 aui-pull-left aui-padded-l-15" style="background-color: #eee;">
+                                    <i class="aui-iconfont aui-icon-minus" v-on:click="cutdowncart($index)"></i>
+                                </div>
+                                <div class="aui-col-xs-4 aui-text-center mty_iconfont">
+                                    <span class="aui-font-size-12">{{ item.goods_num }}</span>
+                                </div>
+                                <div class="aui-col-xs-4 aui-pull-right aui-text-right aui-padded-r-15 aui-text-danger" style="background-color: #eee;">
+                                    <i class="aui-iconfont aui-icon-plus" v-on:click="addcart($index)"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--goods_list 结束-->
+            </div>
+        </li>
+    </ul>
+</section>
+</body>
+</html>
+<script>
+    var vm = new Vue({
+        el: '#randercontent',
+        data: {
+            msg: '',
+            status: 1,
+            p: 1,
+            list: ''
+        },
+        methods: {
+            cutdowncart: function (index) {
+                var goods_num = this.list[index].goods_num;
+                var goods_id = this.list[index].id;
+                if(goods_num == 0){
+                    return false;
+                }
+                cutdown_to_cart(goods_id);//购物车减1/n
+                this.list[index].goods_num = goods_num-1;
+            },
+            addcart: function (index) {
+                var goods_num = this.list[index].goods_num;
+                var goods_id = this.list[index].id;
+                add_to_cart(goods_id);//购物车加1/n
+                this.list[index].goods_num = goods_num+1;
+            }
+        }
+    });
+    apiready = function () {
+        api.setRefreshHeaderInfo({
+            visible: true,
+            loadingImg: 'widget://image/refresh.png',
+            bgColor: '#f5f5f5',
+            textColor: '#fff',
+            textDown: '下拉刷新...',
+            textUp: '松开刷新...',
+            showTime: true
+        }, function (ret, err) {
+            vm.p = 1;
+            readerList();
+            api.refreshHeaderLoadDone();
+        });
+        api.addEventListener({
+            name:'scrolltobottom',
+            extra:{
+                threshold:0            //设置距离底部多少距离时触发，默认值为0，数字类型
+            }
+        }, function(ret, err){
+            readerList();
+        });
+
+        //全局刷新页面广播
+        api.addEventListener({
+            name: 'pagereload'
+        }, function(ret, err) {
+            if(ret.stattus == 1){
+                vm.p = 1;
+                readerList();
+            }
+        });
+        readerList();
+    };
+    function readerList() {
+        var minfo = Array();
+        var minfo = $api.getStorage('minfo');
+        if(!minfo){
+            var token = '';
+        }else{
+            var token = minfo.token;
+        }
+        api.ajax({
+            url: index_goodsUrl,
+            method: 'get',
+            timeout: 5,
+            data: {
+                values: {
+                    token: token,
+                    deviceid: api.deviceId,
+                    is_rec: '1',
+                    p: vm.p
+                }
+            }
+        }, function(ret, err) {
+            if (ret.status == 1) {
+                vm.msg = ret.msg;
+                vm.status = ret.status;
+                if(ret.data.list.length > 0){
+                    if(vm.p == 1){
+                        vm.list = ret.data.list;
+                    }else{
+                        console.log(ret.data.list);
+                        for (var i=0;i<ret.data.list.length; i++){
+                            vm.list.push(ret.data.list[i]);
+                        }
+                    }
+                    vm.p = vm.p + 1;
+                }else{
+                    api.toast({
+                        msg: '加载完毕',
+                        duration: 2000,
+                        location: 'bottom'
+                    });
+                }
+            } else {
+                api.alert({ msg: JSON.stringify(err) });
+            }
+        });
+    }
+</script>

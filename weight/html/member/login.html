@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <link rel="stylesheet" type="text/css" href="../../css/aui/aui.2.0.css"/>
+    <script type="text/javascript" src="../../script/vue.js"></script>
+    <script type="text/javascript" src="../../script/common.js"></script>
+    <script type="text/javascript" src="../../script/api.js"></script>
+</head>
+
+<body>
+<header class="aui-bar aui-bar-nav aui-bar-light">
+    <a class="aui-pull-left" onclick="closeme(this)">
+        <i class="aui-iconfont aui-icon-left"></i>
+    </a>
+    <div class="aui-title">登录</div>
+</header>
+<!--登录区域结束-->
+<section id="login-content">
+    <section class="aui-content-padded">
+        <ul class="aui-list aui-form-list">
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label aui-font-size-14">
+                        手机：
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input type="text" name="username" placeholder="mobile" v-model="mobile">
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label aui-font-size-14">
+                        密码：
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input type="password" name="password" placeholder="password" v-model="password">
+                    </div>
+                </div>
+            </li>
+        </ul>
+        <div class="aui-btn  aui-btn-block aui-btn-sm aui-margin-t-15" v-bind:class="{ 'aui-btn-info': password }" onclick="member_login(this)">登录</div>
+        <div class="aui-row aui-padded-t-15">
+
+            <div class="aui-col-xs-9">
+                <div class=" aui-font-size-12 aui-padded-l-15" onclick="openregister(this)">
+                    手机快速注册
+                </div>
+            </div>
+            <div class="aui-col-xs-3 aui-font-size-12">
+                <div class="aui-pull-left aui-font-size-12 aui-padded-l-15" onclick="resetpassword(this)">
+                    忘记密码
+                </div>
+            </div>
+        </div>
+    </section>
+</section>
+<!--登录区域结束-->
+
+</body>
+</html>
+<script>
+    //实例化vm对象
+    var vm = new Vue({
+        el: 'body',
+        data: {
+            mobile: '',
+            password: '',
+            repassword: '',
+            smscode: '',
+            deviceid: '',
+        }
+    });
+    apiready = function () {
+        vm.deviceid = api.deviceId;//设备唯一标识
+    };
+    function openregister() {
+        api.openWin({
+            name: 'register',
+            url: './register.html'
+        });
+    }
+    function resetpassword() {
+        api.openWin({
+            name: 'resetpassword',
+            url: './resetpassword.html'
+        });
+    }
+    function member_login() {
+        api.ajax({
+            url: loginUrl,
+            method: 'post',
+            timeout: 30,
+            data: {
+                values:
+                {
+                    username: vm.mobile,
+                    password: vm.password,
+                    deviceid: vm.deviceid
+                }
+            }
+        }, function (ret, err) {
+            api.toast({
+                msg: ret.msg,
+                duration: 2000,
+                location: 'bottom'
+            });
+            if(ret.status == 1){
+                console.log(JSON.stringify(ret));
+                console.log(JSON.stringify(ret.data.minfo));
+                console.log(JSON.stringify(ret.data.member_address));
+                $api.setStorage('is_login',ret.status); //保存登录信息
+                $api.setStorage('minfo',ret.data.minfo);
+                $api.setStorage('member_address',ret.data.member_address);
+                api.sendEvent({
+                    name: 'autoreload',//自动刷新会员中心页面内容
+                    extra: {
+                        status: 1
+                    }
+                });
+                api.sendEvent({
+                    name: 'update_cart_number',//更新购物车全局显示数量
+                    extra: {
+                        status: 1
+                    }
+                });
+                api.closeWin();
+            }
+        });
+    };
+</script>

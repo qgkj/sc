@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <link rel="stylesheet" type="text/css" href="../../css/aui/aui.2.0.css"/>
+
+    <script type="text/javascript" src="../../script/vue.js"></script>
+    <script type="text/javascript" src="../../script/common.js"></script>
+    <script type="text/javascript" src="../../script/api.js"></script>
+</head>
+<body>
+<header class="aui-bar aui-bar-nav aui-bar-light">
+    <a class="aui-pull-left" onclick="closeme(this)">
+        <i class="aui-iconfont aui-icon-left"></i>
+    </a>
+    <div class="aui-title">设置</div>
+</header>
+
+<div class="aui-content-padded aui-padded-t-15" id="usercenter" v-bind:stye="{display:centershow}">
+    <ul class="aui-list aui-list-in">
+        <li class="aui-list-item aui-list-item-middle">
+            <div class="aui-list-item-inner">
+                <div class="aui-list-item-title aui-font-size-14">手机:</div>
+                <div class="aui-pull-right aui-font-size-12 aui-padded-r-15">{{ minfo.mobile }}</div>
+            </div>
+        </li>
+        <li class="aui-list-item">
+            <div class="aui-list-item-inner aui-list-item-arrow">
+                <div class="aui-list-item-title aui-font-size-14">地址：</div>
+                <div class="aui-pull-right aui-font-size-12 aui-padded-r-5" onclick="open_address()">
+                    {{ address_info }}
+                </div>
+            </div>
+        </li>
+    </ul>
+    <ul class="aui-list aui-list-in aui-margin-t-10">
+        <li class="aui-list-item aui-list-item-middle">
+            <div class="aui-list-item-inner">
+                <div class="aui-list-item-title aui-font-size-14">当前版本</div>
+                <div class="aui-pull-right aui-font-size-12 aui-padded-r-15">v1.0.0</div>
+            </div>
+        </li>
+        <li class="aui-list-item">
+            <div class="aui-list-item-inner aui-list-item-arrow">
+                <div class="aui-list-item-title aui-font-size-14">版权声明：</div>
+                <div class="aui-pull-right aui-font-size-12 aui-padded-r-5"></div>
+            </div>
+        </li>
+    </ul>
+</div>
+<section class="aui-content-padded" v-bind:stye="{display:centershow}">
+    <div class="aui-btn aui-btn-block aui-btn-sm" onclick="member_loginout(this)">退出</div>
+</section>
+
+
+</body>
+</html>
+<script>
+    var vm = new Vue({
+        el: '#usercenter',
+        data: {
+            is_login: 0,
+            centershow:'none',
+            minfo:'',
+            address_info:''
+        }
+    });
+    apiready = function () {
+        userinfo_init();
+
+        //监听，登录，注册，修改地址操作
+        api.addEventListener({
+            name: 'autoreload'
+        }, function(ret, err) {
+            if(ret.value.status == 1){
+                userinfo_init();
+            }
+        });
+    };
+
+    function userinfo_init() {
+        if($api.getStorage('is_login') == 1){
+            var minfo = $api.getStorage('minfo');
+            var member_address = $api.getStorage('member_address');
+            vm.is_login = 1;
+            vm.centershow = 'block';
+            vm.minfo = minfo;
+            vm.address_info = member_address.address_info;
+        }
+    };
+    //退出登录
+    function member_loginout() {
+        $api.clearStorage();
+        vm.minfo = '';
+        vm.address_info = '';
+        api.toast({
+            msg: '退出成功',
+            duration: 2000,
+            location: 'bottom'
+        });
+        api.sendEvent({
+            name: 'update_cart_number',//更新购物车全局显示数量
+            extra: {
+                status: 1
+            }
+        });
+        setInterval(function () {
+            closeme();
+        },2000)
+    }
+    //添加或则更新地址
+    function open_address() {
+        api.openWin({
+            name: 'address',
+            url: 'widget://html/member/address.html'
+        });
+    }
+</script>

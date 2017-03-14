@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <link rel="stylesheet" type="text/css" href="../../css/aui/aui.2.0.css"/>
+    <script type="text/javascript" src="../../script/vue.js"></script>
+    <script type="text/javascript" src="../../script/common.js"></script>
+    <script type="text/javascript" src="../../script/api.js"></script>
+</head>
+<body>
+<!--商品list开始-->
+<div class="aui-content aui-margin-b-15" >
+    <ul class="aui-list aui-media-list" id="randercontent">
+        <!--原始模板开始-->
+        <!--
+        <li class="aui-list-item aui-margin-b-5">
+            <div class="aui-media-list-item-inner">
+                <div class="aui-list-item-media">
+                    <img src="../../image/vr.jpg">
+                </div>
+                <div class="aui-list-item-inner">
+                    <div class="aui-row aui-font-size-12">
+                        <div class="aui-col-xs-12">
+                            暴风魔镜4代安卓黄金版<br/>
+                            <p class="aui-font-size-12">虚拟现实智能VR眼镜3D头盔</p>
+                        </div>
+                    </div>
+                    <div class="aui-list-item-text aui-padded-t-5 aui-font-size-14 aui-text-danger">
+                        单价：￥2300
+                    </div>
+                    <div class="aui-list-item-text aui-font-size-12">
+                        订购数量：255
+                    </div>
+                </div>
+            </div>
+        </li>
+        -->
+        <!--原始模板结束-->
+        <li class="aui-list-item aui-margin-b-5" v-for="item in list" onclick="openwin_goods_detail( {{ item.goods_id }} )">
+            <div class="aui-media-list-item-inner">
+                <div class="aui-list-item-media">
+                    <img v-bind:src="item.url">
+                </div>
+                <div class="aui-list-item-inner">
+                    <div class="aui-row aui-font-size-12">
+                        <div class="aui-col-xs-12">
+                            {{ item.name }}<br/>
+                            <p class="aui-font-size-12">{{ item.specification }}</p>
+                        </div>
+                    </div>
+                    <div class="aui-list-item-text aui-padded-t-5 aui-font-size-14 aui-text-danger">
+                        单价：￥{{ item.goods_price}}
+                    </div>
+                    <div class="aui-list-item-text aui-font-size-12">
+                        订购数量：{{ item.goods_num}}
+                    </div>
+                </div>
+            </div>
+        </li>
+    </ul>
+</div>
+<!--商品list结束-->
+</body>
+</html>
+<script>
+    var vm = new Vue({
+        el: '#randercontent',
+        data: {
+            list: []
+        }
+    });
+    apiready = function () {
+        var pageParam = api.pageParam;
+        var minfo = $api.getStorage('minfo');
+        api.ajax({
+            url: order_goods_listUrl,
+            method: 'post',
+            timeout: 30,
+            dataType: 'json',
+            returnAll: false,
+            data: {
+                values: {
+                    order_id: pageParam.order_id,
+                    token: minfo.token,
+                    deviceid: api.deviceId
+                }
+            }
+        }, function (ret, err) {
+            if (ret) {
+                vm.list = ret.data.list;
+            } else {
+                api.alert(JSON.stringify(err));
+            }
+        });
+    }
+</script>

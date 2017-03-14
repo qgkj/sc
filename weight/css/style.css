@@ -1,0 +1,28 @@
+body {
+    max-width: 600px;
+    margin: 0 auto;
+    font-size: 62.5%;
+    font-family: 'Î¢ÈíÑÅºÚ';
+}
+
+.aui-bar-nav {
+    background-color: #F75F48
+}
+
+.aui-bj-w {
+    background: #fff;
+}
+.w100{
+    width: 100%;
+}
+/*ÏòÏÂÈı½Ç·ûºÅ*/
+.arrow-down {
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid #fff;
+}
+.aui-list .aui-list-item{
+    overflow: hidden;
+}

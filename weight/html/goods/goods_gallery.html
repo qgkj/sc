@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <link href="../../css/goods/default.css" rel="stylesheet" type="text/css">
+    <link href="./aui/aui.2.0.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="../../script/vue.js"></script>
+    <script type="text/javascript" src="../../script/common.js"></script>
+    <script type="text/javascript" src="../../script/api.js"></script>
+    <style>
+        body{
+            background-color: #1b1b1b;
+        }
+        header{
+            width: 100%;
+            height:45px;
+            top:0;
+            background-color:#1b1b1b;
+            display: block;
+            filter:alpha(opacity=50);
+            -moz-opacity:0.5;
+            -khtml-opacity: 0.5;
+            opacity: 0.5;
+        }
+        .aui-bar {
+            z-index: 1501;
+            color: #cacaca;
+        }
+    </style>
+</head>
+<body>
+<header class="aui-bar aui-bar-nav" style="background-color: #1b1b1b;">
+    <a class="aui-pull-left aui-btn" style="background-color: #1b1b1b;" onclick="closeme(this)">
+        <span class="aui-iconfont aui-icon-left" ></span>
+    </a>
+</header>
+<div id="gallery">
+    <header>
+        <h1>商品图片预览</h1>
+        <div class="subtitle">
+            <a id="source" target="_blank" href="#"></a>
+        </div>
+    </header>
+    <!--
+    <figure>
+        <figcaption>　　
+            2016年4月12日23时许，在山西临猗县人民医院拍摄的救治氯气泄露学生急诊室。（文章来源：新华社）
+        </figcaption>
+        <img alt-src="http://imgm.gmw.cn/attachement/jpg/site2/20160413/002564a3b302187801b11c.jpg"/>
+    </figure>
+    -->
+    <!--
+    <figure v-for="item in items">
+        <figcaption>　　
+            2016年4月12日23时许，在山西临猗县人民医院拍摄的救治氯气泄露学生急诊室。（文章来源：新华社）
+        </figcaption>
+        <img v-bind:alt-src="item.url"/>
+    </figure>
+    -->
+</div>
+<script>
+    var vm = new Vue({
+        el: '#gallery',
+        data: {
+            items: '',
+        }
+    });
+    var html = '';
+    apiready = function () {
+        var pageParam = api.pageParam;
+        api.ajax({
+            url: goods_detailUrl,
+            method: 'post',
+            timeout: 30,
+            dataType: 'json',
+            returnAll: false,
+            data: {
+                values: {
+                    id: pageParam.id
+                }
+            }
+        }, function (ret, err) {
+            if (ret) {
+                var list = ret.data.piclist;
+                vm.items = list;
+                for( var i=0;i<list.length;i++){
+                    html += '    <figure> ' +
+                            '<figcaption>' +
+                            ' ' +
+                            '</figcaption> ' +
+                            '<img alt-src="'+ list[i].url +'"/> ' +
+                            '</figure>';
+                }
+                $api.append($api.byId('gallery'), html);
+                readyGallery();//初始化相册
+            } else {
+                api.alert(JSON.stringify(err));
+            }
+        });
+    };
+</script>
+</body>
+</html>
+<script type="text/javascript" src="../../script/goods/gallery.min.js"></script>
+<script>
+    function readyGallery() {
+        TTGallery.support && prepareUI(TTGallery.container),
+        TTGallery.UIDefault = function (e, t) {
+                    var n, i, o, r, a, l, s, c, u = this, d = !1, p = !0, m = !1,
+                            f = (document.querySelector(".pswp__title"), document.querySelector(".pswp__desc_con")),
+                            h = document.querySelector(".pswp__desc-new"),
+                            g = document.querySelector(".pswp__counter-new"),
+                            v = document.querySelector(".pswp__preloader"),
+                            x = {
+                                barsSize: {top: 44, bottom: "auto"},
+                                closeElClasses: ["item", "caption", "zoom-wrap", "ui", "top-bar"],
+                                timeToIdle: 4e3,
+                                timeToIdleOutside: 1e3,
+                                loadingIndicatorDelay: 1e3,
+                                addDescHTMLFn: function (e, n, i) {
+                                    if (t.features.isAndroid && (n.style.display = "none"), !e.description)return i.innerHTML = "", !1;
+                                    i.innerText = e.description,
+                                    t.features.isAndroid && (n.style.display = "block");
+                                    var o = n.offsetHeight == n.scrollHeight;
+                                    return o ? n.removeAttribute("inline-scroll") : n.setAttribute("inline-scroll", "true"),
+                                            y(n, "non_scroll", o),
+                                            n.scrollTop = 0, !0
+                                },
+                                closeEl: !0,
+                                descEl: !0,
+                                zoomEl: !1,
+                                titleEl: !0,
+                                counterEl: !0,
+                                preloaderEl: !0,
+                                tapToClose: !1,
+                                tapToToggleControls: !0,
+                                clickToCloseNonZoomable: !0
+                            },
+                            y = function (e, n, i) {
+                                t[(i ? "add" : "remove") + "Class"](e, "pswp__" + n)
+                            },
+                            w = function () {
+                                l.preloaderEl && (i("beforeChange", function () {
+                                    clearTimeout(a), a = setTimeout(function () {
+                                        e.currItem && e.currItem.loading ? e.currItem.img && !e.currItem.img.naturalWidth && _(!1) : _(!0)
+                                    }, l.loadingIndicatorDelay)
+                                }), i("imageLoadComplete", function (t, n) {
+                                    e.currItem === n && _(!0)
+                                }))
+                            },
+                            _ = function (e) {
+                                r !== e && (y(v, "preloader--active", !e), r = e)
+                            };
+                    u.init = function () {
+                        t.extend(e.options, x, !0), l = e.options, n = t.getChildByClass(e.scrollWrap, "pswp__ui"), i = e.listen, o = e.shout, i("beforeChange", u.update), i("doubleTap", function (t) {
+                            var n = e.currItem.initialZoomLevel;
+                            e.getZoomLevel() !== n ? e.zoomTo(n, t, 333) : e.zoomTo(l.getDoubleTapZoom(e.currItem), t, 333)
+                        }), i("bindEvents", function () {
+                            t.bind(e.container, "tap", u.onGlobalTap)
+                        }), i("unbindEvents", function () {
+                            c && clearInterval(c), t.unbind(e.container, "tap", u.onGlobalTap)
+                        }), l.showAnimationDuration || t.removeClass(n, "pswp__ui--hidden"), i("initialZoomIn", function () {
+                            l.showAnimationDuration && t.removeClass(n, "pswp__ui--hidden")
+                        }), i("initialZoomOut", function () {
+                            t.addClass(n, "pswp__ui--hidden")
+                        }), w()
+                    },
+                            u.update = function () {
+                                0 == e.currItem.controls ? (t.addClass(n, "pswp__ui--none"), m = !0) : (t.removeClass(n, "pswp__ui--none"), m = !1), p && !m && e.currItem ? (u.updateIndexIndicator(), l.descEl && (l.addDescHTMLFn(e.currItem, f, h), y(f, "caption--empty", !e.currItem.description)), d = !0) : d = !1
+                            },
+                            u.updateIndexIndicator = function () {
+                                l.counterEl && (g.innerHTML = e.getCurrentIndex() + 1 + "<i>" + l.indexIndicatorSep + l.getCountItemsFn() + "</i>")
+                            },
+                            u.onGlobalTap = function (t) {
+                                return l.isReloadButton(t.target) ? void e.reloadCurrItem() : void(s || l.tapToToggleControls && !m && u.toggleControls())
+                            },
+                            u.toggleControls = function () {
+                                "object" == typeof ToutiaoJSBridge && ToutiaoJSBridge.call("toggleGalleryBars"), p ? u.hideControls() : u.showControls()
+                            },
+                            u.hideControls = function () {
+                                t.addClass(n, "pswp__ui--hidden"), p = !1, o("hideControls")
+                            },
+                            u.showControls = function () {
+                                p = !0, d || u.update(), t.removeClass(n, "pswp__ui--hidden"), o("showControls")
+                            }
+                },
+        TTGallery.support && TTGalleryInit(TTGallery.container);
+    }
+</script>

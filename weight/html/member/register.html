@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <link rel="stylesheet" type="text/css" href="../../css/aui/aui.2.0.css"/>
+    <script type="text/javascript" src="../../script/vue.js"></script>
+    <script type="text/javascript" src="../../script/common.js"></script>
+    <script type="text/javascript" src="../../script/api.js"></script>
+</head>
+
+<body>
+<header class="aui-bar aui-bar-nav aui-bar-light">
+    <a class="aui-pull-left" onclick="closeme(this)">
+        <i class="aui-iconfont aui-icon-left"></i>
+    </a>
+    <div class="aui-title">注册</div>
+</header>
+<!--注册区域开始-->
+<section id="reg-content">
+    <section class="aui-content-padded">
+        <ul class="aui-list aui-form-list">
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label aui-font-size-14">
+                        手机：
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input type="number" name="moblie" placeholder="" v-model="mobile">
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label aui-font-size-14">
+                        密码：
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input type="password" name="password" placeholder="" v-model="password">
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label aui-font-size-14">
+                        重复密码：
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input type="password" name="repassword" placeholder="" v-model="repassword">
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label aui-font-size-14">
+                        验证码：
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input type="number" placeholder="" name="smscode" v-model="smscode" class="aui-margin-l-15">
+                    </div>
+                    <div class="aui-btn aui-btn-default aui-margin-r-5" onclick="get_smscode(this)">
+                        <span class="aui-font-size-14">获取</span>
+                    </div>
+                </div>
+            </li>
+        </ul>
+        <div class="aui-btn aui-btn-block aui-btn-sm aui-margin-t-15" v-bind:class="{'aui-btn-info': mobile}" onclick="member_register(this)">注册</div>
+    </section>
+</section>
+<!--注册区域结束-->
+
+</body>
+</html>
+<script>
+    //实例化vm对象
+    var vm = new Vue({
+        el: 'body',
+        data: {
+            mobile: '',
+            password: '',
+            repassword: '',
+            smscode: '',
+            deviceid: ''
+        }
+    });
+    apiready = function () {
+        vm.deviceid = api.deviceId;//设备唯一标识
+    };
+    function member_register() {
+        api.ajax({
+            url: registerUrl,
+            method: 'post',
+            timeout: 30,
+            data: {
+                values: {
+                    smscode: vm.smscode,
+                    mobile: vm.mobile,
+                    password: vm.password,
+                    repassword: vm.repassword,
+                    deviceid: vm.deviceid
+                }
+            }
+        }, function (ret, err) {
+            api.toast({
+                msg: ret.msg,
+                duration: 2000,
+                location: 'bottom'
+            });
+            if(ret.status == 1){
+                $api.setStorage('is_login',ret.status); //保存登录信息
+                $api.setStorage('minfo',ret.data.minfo);
+                $api.setStorage('member_address',ret.data.member_address);
+                api.sendEvent({
+                    name: 'autoreload',//自动刷新会员中心页面内容
+                    extra: {
+                        status: 1
+                    }
+                });
+                api.closeWin();
+            }
+        });
+    }
+    function get_smscode() {
+        api.ajax({
+            url: smscode_registerUrl,
+            method: 'post',
+            timeout: 30,
+            data: {
+                values: {
+                    mobile: vm.mobile
+                }
+            }
+        }, function (ret, err) {
+            if(ret.status == 1){
+                api.toast({
+                    msg: ret.msg,
+                    duration: 2000,
+                    location: 'bottom'
+                });
+                api.alert({
+                    title: '手机验证码为',
+                    msg: 111111
+                });
+            }else{
+                api.toast({
+                    msg: ret.msg,
+                    duration: 2000,
+                    location: 'bottom'
+                });
+            }
+        });
+    }
+</script>

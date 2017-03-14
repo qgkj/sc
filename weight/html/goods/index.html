@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <link rel="stylesheet" type="text/css" href="../../css/mui/mui.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/aui/aui.2.0.css"/>
+    <script type="text/javascript" src="../../script/vue.js"></script>
+    <script type="text/javascript" src="../../script/common.js"></script>
+    <script type="text/javascript" src="../../script/api.js"></script>
+
+    <style>
+        .css{
+            overflow:auto;/* winphone8和android4+ */
+            -webkit-overflow-scrolling: touch; /* ios5+ */
+        }
+        .scroll-left{
+            width: 23%;
+            background-color: #FFFFFF;
+            background-attachment: absolute;
+            overflow:auto;/* winphone8和android4+ */
+            -webkit-overflow-scrolling: touch; /* ios5+ */
+        }
+        .scroll-right{
+            width: 74%;
+            float: right;
+            position: absolute;
+            z-index: 10;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            background-color: #FFFFFF;
+            overflow:auto;/* winphone8和android4+ */
+            -webkit-overflow-scrolling: touch; /* ios5+ */
+
+        }
+        /*点击变蓝色高亮*/
+
+        .mui-table-view-cell.mui-active {
+            background-color: #EEE;
+            color: #e51c23;
+        }
+        .aui-list .aui-list-item {
+            padding-left: 0.2rem;
+        }
+        .mui-table-view-cell
+        {
+           padding-left: 0.25rem;padding-right: 0.25rem;
+        }
+        .mty-lineh{
+            line-height: 2rem;
+        }
+    </style>
+</head>
+<body>
+<!--左侧区域滚动分类list开始-->
+<div class="mui-scroll-wrapper scroll-left" id="scroll-left">
+    <div class="mui-scroll">
+        <ul class="mui-table-view">
+            <!--
+            <li class="mui-table-view-cell aui-text-center aui-border-b" onclick="addTodo( this )" >
+                <div class="aui-font-size-14 mty-lineh">酒水饮料</div>
+            </li>
+            -->
+            <li class="mui-table-view-cell aui-text-center aui-border-b" v-for="item in items"
+                v-bind:class="{'mui-active': index==$index}" v-on:click="addTodo( $index )" >
+                <div class="aui-font-size-14 mty-lineh">{{ item.title }}</div>
+            </li>
+
+        </ul>
+    </div>
+</div>
+<!--左侧区域滚动分类list结束-->
+
+<!--右侧区域滚动商品list开始-->
+<div class="scroll-right">
+    <div class="mui-scroll">
+        <div class="aui-content aui-margin-b-15">
+            <ul class="aui-list aui-media-list">
+                <!--
+                <li class="aui-list-item">
+                    <div class="aui-media-list-item-inner">
+                        <div class="aui-list-item-media">
+                            <img src="../../image/vr.jpg">
+                        </div>
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-text aui-font-size-12">暴风魔镜4代安卓黄金版 虚拟现实智能VR眼镜3D头盔</div>
+                            <div class="aui-list-item-text aui-padded-t-5 aui-padded-b-5 aui-font-size-14 aui-text-danger">￥2300</div>
+                            <div class="aui-row aui-border">
+                                <div class="aui-col-xs-12">
+                                    <div class="aui-col-xs-4 aui-pull-left aui-padded-l-15" style="background-color: #eee;">
+                                        <i class="aui-iconfont aui-icon-minus"></i>
+                                    </div>
+                                    <div class="aui-col-xs-4 aui-text-center">
+                                        <span class="aui-font-size-12">25</span>
+                                    </div>
+                                    <div class="aui-col-xs-4 aui-pull-right aui-text-right aui-padded-r-15 aui-text-danger" style="background-color: #eee;">
+                                        <i class="aui-iconfont aui-icon-plus"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                -->
+                <li class="aui-list-item" v-for="vo in list">
+                    <div class="aui-media-list-item-inner">
+                        <div class="aui-list-item-media">
+                            <img v-bind:src="vo.url" onclick="openwin_goods_detail( {{ vo.id }} )">
+                        </div>
+                        <div class="aui-list-item-inner">
+                            <div class="aui-font-size-12">
+                                {{ vo.name }}<br/>
+                                <p class=" aui-font-size-12">{{ vo.specification}}</p></div>
+                            <div class="aui-list-item-text aui-padded-t-5 aui-padded-b-5 aui-font-size-14 aui-text-danger">￥{{ vo.price }}</div>
+                            <div class="aui-row aui-border">
+                                <div class="aui-col-xs-12">
+                                    <div class="aui-col-xs-4 aui-pull-left aui-padded-l-15" style="background-color: #eee;">
+                                        <i class="aui-iconfont aui-icon-minus"  v-on:click="cutdowncart($index)"></i>
+                                    </div>
+                                    <div class="aui-col-xs-4 aui-text-center">
+                                        <span class="aui-font-size-12">{{ vo.goods_num }}</span>
+                                    </div>
+                                    <div class="aui-col-xs-4 aui-pull-right aui-text-right aui-padded-r-15 aui-text-danger" style="background-color: #eee;">
+                                        <i class="aui-iconfont aui-icon-plus" v-on:click="addcart($index)"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<!--右侧区域滚动商品list结束-->
+</body>
+
+</html>
+<script>
+    /*
+    mui('.mui-scroll-wrapper').scroll({
+        scrollY: true, //是否竖向滚动
+        scrollX: false, //是否横向滚动
+        startX: 0, //初始化时滚动至x
+        startY: 0, //初始化时滚动至y
+        indicators: true, //是否显示滚动条
+        deceleration:0.0005, //阻尼系数,系数越小滑动越灵敏
+        bounce: true, //是否启用回弹
+    });
+    mui('.scroll-right').scroll({
+        scrollY: true, //是否竖向滚动
+        scrollX: false, //是否横向滚动
+        startX: 0, //初始化时滚动至x
+        startY: 0, //初始化时滚动至y
+        indicators: true, //是否显示滚动条
+        deceleration:0.0005, //阻尼系数,系数越小滑动越灵敏
+        bounce: true, //是否启用回弹
+    });
+    */
+</script>
+<script>
+    var vm = new Vue({
+        el: 'body',
+        data: {
+            index: 0,
+            cid: 0,
+            items: [],
+            list: [],
+            p: 1
+        },
+        methods: {
+            addTodo: function (index) {
+                vm.index = index;
+                vm.cid = vm.items[index].id;
+                vm.p = 1;
+                readerList();//切换分类数据列表
+            },
+            cutdowncart: function (index) {
+                var goods_num = this.list[index].goods_num;
+                var goods_id = this.list[index].id;
+                if(goods_num == 0){
+                    return false;
+                }
+                cutdown_to_cart(goods_id);//购物车减1/n
+                this.list[index].goods_num = goods_num-1;
+            },
+            addcart: function (index) {
+                var goods_num = this.list[index].goods_num;
+                var goods_id = this.list[index].id;
+                add_to_cart(goods_id);//购物车加1/n
+                this.list[index].goods_num = goods_num+1;
+            }
+        }
+    });
+    apiready = function () {
+        api.ajax({
+            url: goods_category_listlUrl,
+            method: 'post',
+            timeout: 30,
+            dataType: 'json',
+            returnAll: false,
+            data: {
+                values: {
+                    name: 'values'
+                }
+            }
+        }, function (ret, err) {
+            if (ret) {
+                vm.items = ret.data.list;
+                vm.cid = vm.items[0].id;
+                readerList();//渲染右侧数据
+            } else {
+                api.alert(JSON.stringify(err));
+            }
+        });
+        api.addEventListener({
+            name:'scrolltobottom',
+            extra:{
+                threshold:0            //设置距离底部多少距离时触发，默认值为0，数字类型
+            }
+        }, function(ret, err){
+            readerList();
+        });
+
+        //全局刷新页面广播
+        api.addEventListener({
+            name: 'pagereload'
+        }, function(ret, err) {
+            if(ret.stattus == 1){
+                vm.p = 1;
+                readerList();
+            }
+        });
+    };
+    /*
+    function addTodo(tag) {
+        if (tag == $api.dom('#scroll-left ul li .aui-active')){
+            return;
+        }
+        var clist = $api.domAll('#scroll-left ul li');
+        var index = 0;
+        for (var i = 0, len = clist.length; i < len; i++) {
+            if (tag == clist[i]) {
+                index = i;
+            }else{
+                $api.removeCls(clist[i], 'mui-active');
+            }
+        }
+        $api.addCls(clist[index], 'mui-active');
+    }
+    */
+
+    function readerList() {
+        var minfo = Array();
+        var minfo = $api.getStorage('minfo');
+        if(!minfo){
+            var token = '';
+        }else{
+            var token = minfo.token;
+        }
+        api.ajax({
+            url: index_goodsUrl,
+            method: 'get',
+            timeout: 5,
+            data: {
+                values: {
+                    token: token,
+                    deviceid: api.deviceId,
+                    cid: vm.cid,
+                    p: vm.p
+                }
+            }
+        }, function(ret, err) {
+            if (ret.status == 1) {
+                if(ret.data.list.length > 0){
+                    if(vm.p == 1){
+                        vm.list = ret.data.list;
+                    }else{
+                        for (var i=0;i<ret.data.list.length; i++){
+                            vm.list.push(ret.data.list[i]);
+                        }
+                    }
+                    vm.p = vm.p + 1;
+                }else{
+                    api.toast({
+                        msg: '加载完毕',
+                        duration: 2000,
+                        location: 'bottom'
+                    });
+                }
+            } else {
+                api.alert({ msg: JSON.stringify(err) });
+            }
+        });
+    }
+</script>

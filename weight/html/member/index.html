@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <link rel="stylesheet" type="text/css" href="../../css/aui/aui.2.0.css"/>
+    <script type="text/javascript" src="../../script/vue.js"></script>
+    <script type="text/javascript" src="../../script/common.js"></script>
+    <script type="text/javascript" src="../../script/api.js"></script>
+</head>
+<body>
+    <section class="aui-grid">
+        <div class="aui-row">
+            <div class="aui-col-xs-3" onclick="open_order(this)">
+                <i class="aui-iconfont aui-icon-menu aui-font-size-20"></i>
+                <div class="aui-grid-label aui-font-size-12">订单</div>
+            </div>
+            <div class="aui-col-xs-3" onclick="open_collect(this)">
+                <i class="aui-iconfont aui-icon-star aui-font-size-20"></i>
+                <div class="aui-grid-label aui-font-size-12">收藏</div>
+            </div>
+            <!--
+            <div class="aui-col-xs-3" onclick="open_cart(this)">
+                <i class="aui-iconfont aui-icon-cart aui-font-size-20"></i>
+                <div class="aui-grid-label aui-font-size-12">购物车</div>
+            </div>
+            -->
+        </div>
+    </section>
+    <section class="aui-grid aui-margin-t-10">
+        <div class="aui-row">
+            <div class="aui-col-xs-3" onclick="open_setting(this)">
+                <i class="aui-iconfont aui-icon-gear aui-font-size-20"></i>
+                <div class="aui-grid-label aui-font-size-12">设置</div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>
+<script>
+    function open_order() {
+        if(is_login()){
+            api.openWin({
+                name: 'order_win',
+                url: 'widget://html/member/order_win.html'
+            });
+        }else{
+            api.openWin({
+                name: 'login',
+                url: 'widget://html/member/login.html'//登录
+            });
+        }
+    }
+    function open_collect() {
+        if(is_login()){
+            api.openWin({
+                name: 'collect_win',
+                url: 'widget://html/member/collect_win.html'
+            });
+        }else{
+            api.openWin({
+                name: 'login',
+                url: 'widget://html/member/login.html'//登录
+            });
+        }
+    }
+    function open_cart() {
+        if(is_login()){
+            api.openWin({
+                name: 'cart_win',
+                url: 'widget://html/member/cart_win.html'
+            });
+        }else{
+            api.openWin({
+                name: 'login',
+                url: 'widget://html/member/login.html'//登录
+            });
+        }
+    }
+    function open_setting() {
+        if(is_login()){
+            api.openWin({
+                name: 'setting',
+                url: 'widget://html/member/setting.html'
+            });
+        }else{
+            api.openWin({
+                name: 'login',
+                url: 'widget://html/member/login.html'//登录
+            });
+        }
+    }
+    apiready = function () {
+/*        if(!is_login()){
+            api.openWin({
+                name: 'login',
+                url: 'widget://html/member/login.html'//登录
+            });
+        }*/
+    }
+</script>

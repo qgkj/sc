@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <link rel="stylesheet" type="text/css" href="../../css/aui/aui.2.0.css"/>
+    <script type="text/javascript" src="../../script/vue.js"></script>
+    <script type="text/javascript" src="../../script/common.js"></script>
+    <script type="text/javascript" src="../../script/api.js"></script>
+    <script type="text/javascript" src="../../script/aui/aui-popup.js" ></script>
+</head>
+<body>
+
+<div class="aui-content">
+    <!--订单list开始-->
+    <!--
+    <div class="order-item aui-margin-b-10" onclick="open_orderdetail(this)">
+        <div class="aui-row aui-padded-r-10 aui-padded-l-10 aui-padded-t-10" style="background-color: #ffffff;">
+                <div class="aui-col-xs-6">
+                    <span class="aui-font-size-14">订单号：MYdinghuo-20160910133831</span>
+                </div>
+                <div class="aui-col-xs-6 aui-text-right">
+                    <p>2016-09-20 13:50</p>
+                </div>
+                <div class="aui-col-xs-8 aui-margin-t-10">
+                    <p>20件商品</p>
+                    <p class="aui-text-danger">￥20000</p>
+                </div>
+                <div class="aui-col-xs-4 aui-margin-t-10 aui-padded-t-10">
+                    <div class="aui-btn aui-btn-info aui-pull-left aui-font-size-12">付款</div>
+                    <div class="aui-btn aui-btn-danger aui-pull-right aui-font-size-12">删除</div>
+                </div>
+        </div>
+    </div>
+    <div class="order-item aui-margin-b-10" onclick="open_orderdetail(this)">
+        <div class="aui-row aui-padded-r-10 aui-padded-l-10 aui-padded-t-10" style="background-color: #ffffff;">
+            <div class="aui-col-xs-6">
+                <span class="aui-font-size-14">订单号：21565906080</span>
+            </div>
+            <div class="aui-col-xs-6 aui-text-right">
+                <p>2016-09-20 13:50</p>
+            </div>
+            <div class="aui-col-xs-8 aui-margin-t-10">
+                <p>20件商品</p>
+                <p class="aui-text-danger">￥20000</p>
+            </div>
+            <div class="aui-col-xs-4 aui-margin-t-10 aui-padded-t-10">
+                <p class="aui-text-info aui-text-right">待收货</p>
+            </div>
+        </div>
+    </div>
+    <div class="order-item aui-margin-b-10" onclick="open_orderdetail(this)">
+        <div class="aui-row aui-padded-r-10 aui-padded-l-10 aui-padded-t-10" style="background-color: #ffffff;">
+            <div class="aui-col-xs-6">
+                <span class="aui-font-size-14">订单号：21565906080</span>
+            </div>
+            <div class="aui-col-xs-6 aui-text-right">
+                <p>2016-09-20 13:50</p>
+            </div>
+            <div class="aui-col-xs-8 aui-margin-t-10">
+                <p>20件商品</p>
+                <p class="aui-text-danger">￥20000</p>
+            </div>
+            <div class="aui-col-xs-4 aui-margin-t-10 aui-padded-t-10">
+                <p class="aui-text-warning aui-text-right">已完成</p>
+            </div>
+        </div>
+    </div>
+    -->
+    <!--订单list结束-->
+    <div class="order-item aui-margin-b-10" v-for="item in list">
+        <div class="aui-row aui-padded-r-10 aui-padded-l-10 aui-padded-t-10" style="background-color: #ffffff;">
+            <div class="aui-col-xs-6" onclick="open_orderdetail({{ item.id }})">
+                <span class="aui-font-size-14">订单号：{{ item.order_sn }}</span>
+            </div>
+            <div class="aui-col-xs-6 aui-text-right">
+                <p>2016-09-20 13:50</p>
+            </div>
+            <div class="aui-col-xs-8 aui-margin-t-10" onclick="open_orderdetail({{ item.id }})">
+                <p>{{ item.goods_amount }}件商品</p>
+                <p class="aui-text-danger">￥{{ item.order_amount }}</p>
+            </div>
+            <div class="aui-col-xs-4 aui-margin-t-10 aui-padded-t-10">
+                <template v-if="item.status == 0">
+                    <div class="aui-btn aui-btn-info aui-pull-left aui-font-size-12" onclick="update_order_address({{ item.id }})" >付款</div>
+                    <div class="aui-btn aui-btn-danger aui-pull-right aui-font-size-12" v-on:click="addTodo($index)">删除</div>
+                </template>
+                <template v-if="item.status == 1">
+                    <p class="aui-text-info aui-text-right">待收货</p>
+                </template>
+                <template v-if="item.status == 2">
+                    <p class="aui-text-warning aui-text-right">已完成</p>
+                </template>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="aui-popup aui-popup-top-right" id="top-right">
+    <div class="aui-popup-arrow"></div>
+    <div class="aui-popup-content">
+        <ul class="aui-list aui-list-noborder">
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner aui-list-item-middle" onclick="order_list(0)">
+                    <p class="aui-text-default">待付款</p>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner" onclick="order_list(1)">
+                    <p class="aui-text-info">待收货</p>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner" onclick="order_list(2)">
+                    <p class="aui-text-warning">已完成</p>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
+</body>
+</html>
+<script type="text/javascript">
+    var popup = new auiPopup();
+    function showPopup(){
+        popup.show(document.getElementById("top-right"))
+    }
+    function open_orderdetail(order_id) {
+        if(is_login()){
+            api.openWin({
+                name: 'orderdetail_win',
+                url: 'widget://html/member/orderdetail_win.html',
+                pageParam: {
+                    order_id: order_id //订单ID
+                },
+            });
+        }else{
+            api.openWin({
+                name: 'login',
+                url: 'widget://html/member/login.html'//登录
+            });
+        }
+    }
+
+
+    var vm = new Vue({
+        el: 'body',
+        data: {
+            status: 0,
+            p: 1,
+            list:[]
+        },
+        methods: {
+            addTodo: function ( index ) {
+                var minfo = $api.getStorage('minfo');
+                var order_id = vm.list[index].id;
+                console.log(order_id);
+                api.ajax({
+                    url: delete_orderUrl,
+                    method: 'post',
+                    timeout: 30,
+                    dataType: 'json',
+                    returnAll: false,
+                    data: {
+                        values: {
+                            token: minfo.token,
+                            deviceid: api.deviceId,
+                            order_id: order_id
+                        }
+                    }
+                }, function (ret, err) {
+                    if (ret) {
+                        api.toast({
+                            msg: ret.msg,
+                            duration: 2000,
+                            location: 'bottom'
+                        });
+                        if(ret.status == 1){
+                            vm.list.splice(index, 1);
+                        }
+                    } else {
+                        api.alert(JSON.stringify(err));
+                    }
+                });
+            }
+        }
+    });
+    apiready = function () {
+        api.setRefreshHeaderInfo({
+            visible: true,
+            loadingImg: 'widget://image/refresh.png',
+            bgColor: '#f5f5f5',
+            textColor: '#fff',
+            textDown: '下拉刷新...',
+            textUp: '松开刷新...',
+            showTime: true
+        }, function (ret, err) {
+            vm.p = 1;
+            readerList();
+            api.refreshHeaderLoadDone();
+        });
+        api.addEventListener({
+            name:'scrolltobottom',
+            extra:{
+                threshold:0            //设置距离底部多少距离时触发，默认值为0，数字类型
+            }
+        }, function(ret, err){
+            readerList();
+        });
+        readerList();
+    };
+    function order_list(status) {
+        vm.p = 1;
+        vm.status = status;
+        readerList();
+    }
+    function readerList() {
+        var minfo = Array();
+        var minfo = $api.getStorage('minfo');
+        if(!minfo){
+            var token = '';
+        }else{
+            var token = minfo.token;
+        }
+        api.ajax({
+            url: order_listUrl,
+            method: 'get',
+            timeout: 5,
+            data: {
+                values: {
+                    token: token,
+                    deviceid: api.deviceId,
+                    status: vm.status,
+                    p: vm.p
+                }
+            }
+        }, function(ret, err) {
+            if (ret.status == 1) {
+                vm.msg = ret.msg;
+                if(ret.data.list.length > 0){
+                    if(vm.p == 1){
+                        vm.list = ret.data.list;
+                    }else{
+                        for (var i=0;i<ret.data.list.length; i++){
+                            vm.list.push(ret.data.list[i]);
+                        }
+                    }
+                    vm.p = vm.p + 1;
+                }else{
+                    api.toast({
+                        msg: '加载完毕',
+                        duration: 2000,
+                        location: 'bottom'
+                    });
+                }
+            } else {
+                api.alert({ msg: JSON.stringify(err) });
+            }
+        });
+    }
+    function update_order_address(order_id) {
+        api.openWin({
+            name: 'pay_win',
+            url: 'widget://html/cart/pay_win.html',
+            pageParam: {
+                order_id: order_id
+            }
+        });
+    }
+
+</script>

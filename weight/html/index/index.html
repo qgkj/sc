@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <link rel="stylesheet" type="text/css" href="../../css/aui/aui.2.0.css"/>
+    <script type="text/javascript" src="../../script/vue.js"></script>
+    <script type="text/javascript" src="../../script/api.js"></script>
+</head>
+<body>
+    <div class="header">
+        <div class="aui-tab" id="tab">
+            <div class="aui-tab-item" id="is_new">新品</div>
+            <div class="aui-tab-item" id="is_hot">热销</div>
+            <div class="aui-tab-item" id="is_rec">推荐</div>
+        </div>
+    </div>
+</body>
+</html>
+<script>
+    apiready = function () {
+        api.openFrameGroup({
+            name: 'group2',
+            background: 'fff',
+            scrollEnabled: true,
+            rect: {
+                x: 0,
+                y: $api.byId("tab").offsetHeight,
+                w: api.winWidth,
+                h: api.winHeight - $api.byId("tab").offsetHeight - $api.getStorage("footerheight")
+            },
+            index: 0,
+            frames: [
+                {
+                    name: 'is_new',
+                    url: 'is_new.html',
+                },
+                {
+                    name: 'is_hot',
+                    url: 'is_hot.html',
+                },
+                {
+                    name: 'is_rec',
+                    url: 'is_rec.html',
+                }
+            ]
+        }, function (ret, err) {
+            var conindex = ret.index;
+            var tablist = $api.domAll('#tab .aui-tab-item');
+            for(var i=0;i<tablist.length;i++){
+                $api.removeCls(tablist[i], 'aui-active');
+                if(i == conindex){
+                    $api.addCls(tablist[conindex], 'aui-active');
+                }
+            }
+        });
+    }
+</script>
